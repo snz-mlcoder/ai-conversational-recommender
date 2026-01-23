@@ -5,9 +5,13 @@ from pathlib import Path
 # =======================
 # PATHS
 # =======================
-INPUT_PATH = Path("data/processed/products_full.json")
-OUTPUT_PATH = Path("rag/data/documents.jsonl")
+INPUT_PATH = Path("data/processed/company_catalog.json")
 
+# 🔥 source name derived automatically from input filename
+SOURCE_NAME = INPUT_PATH.stem
+
+# 🔒 FIXED output for RAG pipeline
+OUTPUT_PATH = Path("rag/data/documents.jsonl")
 OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 
@@ -18,21 +22,20 @@ def build_description(product: dict) -> str:
     parts = []
 
     name = product.get("name")
-    if name and name.strip():
+    if name and str(name).strip():
         parts.append(name.strip())
 
     features = product.get("features")
 
     if isinstance(features, list):
         for f in features:
-            if f and f.strip():
-                parts.append(f"- {f.strip()}")
+            if f and str(f).strip():
+                parts.append(f"- {str(f).strip()}")
 
     elif isinstance(features, str) and features.strip():
         parts.append(f"- {features.strip()}")
 
     return "\n".join(parts)
-
 
 
 def build_category_path(product: dict) -> str:
@@ -45,24 +48,30 @@ def build_category_path(product: dict) -> str:
 # =======================
 def run():
     if not INPUT_PATH.exists():
-        print("❌ products_full.json not found.")
+        print(f"❌ Input file not found: {INPUT_PATH}")
         return
 
     with INPUT_PATH.open("r", encoding="utf-8") as f:
         products = json.load(f)
 
-    print(f"📦 Preparing documents for {len(products)} products...\n")
+    print(f"📦 Preparing documents for {len(products)} products")
+    print(f"🔗 Source: {SOURCE_NAME}")
 
     written = 0
 
-    with OUTPUT_PATH.open("w", encoding="utf-8") as out:
+    # ✅ append if exists, otherwise create
+    mode = "a" if OUTPUT_PATH.exists() else "w"
+
+    with OUTPUT_PATH.open(mode, encoding="utf-8") as out:
         for product in products:
             description = build_description(product)
-            
+            if not description:
+                continue
+
             doc = {
                 "id": product.get("id"),
                 "url": product.get("url"),
-                "source": product.get("source"),
+                "source": SOURCE_NAME,  # 👈 single source of truth
                 "category": build_category_path(product),
                 "text": description,
                 "images": product.get("images", []),
@@ -72,8 +81,8 @@ def run():
             written += 1
 
     print("🎉 DONE")
-    print(f"📝 Documents written: {written}")
-    print(f"💾 Output: {OUTPUT_PATH}")
+    print(f"📝 Documents written this run: {written}")
+    print(f"💾 Output file: {OUTPUT_PATH}")
 
 
 if __name__ == "__main__":
