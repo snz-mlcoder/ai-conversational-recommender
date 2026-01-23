@@ -1,5 +1,22 @@
+# Python
 __pycache__/
-.env
-data/raw/*
-data/processed/*
+*.pyc
+*.pyo
+.venv/
 venv/
+
+# Data outputs
+data/processed/
+rag/data/
+
+# Vector stores
+*.index
+*.bin
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
