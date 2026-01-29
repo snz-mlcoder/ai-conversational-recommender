@@ -1,5 +1,6 @@
 from typing import List, Dict
 from collections import defaultdict
+
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
@@ -9,43 +10,71 @@ from sentence_transformers import SentenceTransformer
 # =======================
 MODEL_NAME = "all-MiniLM-L6-v2"
 DEFAULT_NUM_CLUSTERS = 3
+MAX_KMEANS_ITER = 5
 
 
 # =======================
-# HELPERS
+# EMBEDDING
 # =======================
-def _embed_texts(texts: List[str]) -> np.ndarray:
-    model = SentenceTransformer(MODEL_NAME)
-    embeddings = model.encode(
+_model = None
+
+
+def get_model() -> SentenceTransformer:
+    global _model
+    if _model is None:
+        _model = SentenceTransformer(MODEL_NAME)
+    return _model
+
+
+def embed_texts(texts: List[str]) -> np.ndarray:
+    """
+    Embed a list of texts using the same model
+    used for document embeddings.
+    """
+    model = get_model()
+    return model.encode(
         texts,
         convert_to_numpy=True,
         normalize_embeddings=True,
     )
-    return embeddings
 
 
-def _simple_kmeans(embeddings: np.ndarray, k: int) -> List[int]:
+# =======================
+# SIMPLE K-MEANS (COSINE)
+# =======================
+def simple_kmeans(
+    embeddings: np.ndarray,
+    k: int,
+    iterations: int = MAX_KMEANS_ITER,
+) -> List[int]:
     """
-    Very simple k-means using cosine similarity (educational purpose).
-    Returns cluster index for each embedding.
+    Very simple k-means using cosine similarity.
+    Educational + deterministic enough for small result sets.
     """
+
     n = len(embeddings)
+    if n == 0:
+        return []
+
     k = min(k, n)
 
-    # initialize centroids
-    centroids = embeddings[:k]
-
+    # initialize centroids (first k vectors)
+    centroids = embeddings[:k].copy()
     assignments = [0] * n
 
-    for _ in range(5):  # few iterations are enough here
-        # assign
+    for _ in range(iterations):
+        # assignment step
         for i, emb in enumerate(embeddings):
-            sims = np.dot(centroids, emb)
-            assignments[i] = int(np.argmax(sims))
+            similarities = np.dot(centroids, emb)
+            assignments[i] = int(np.argmax(similarities))
 
-        # update centroids
+        # update step
         for j in range(k):
-            members = [embeddings[i] for i in range(n) if assignments[i] == j]
+            members = [
+                embeddings[i]
+                for i in range(n)
+                if assignments[i] == j
+            ]
             if members:
                 centroids[j] = np.mean(members, axis=0)
 
@@ -60,45 +89,66 @@ def cluster_results(
     num_clusters: int = DEFAULT_NUM_CLUSTERS,
 ) -> List[Dict]:
     """
-    Cluster search results based on semantic similarity.
+    Cluster retrieval results based on semantic similarity
+    of their CANONICAL TEXT.
 
-    Args:
-        results: output of retrieval.search()
-        num_clusters: desired number of clusters
-
-    Returns:
-        List of clusters:
-        [
-          {
-            "cluster_id": int,
-            "items": [results...],
-            "size": int
-          }
-        ]
+    Each result is expected to have:
+    {
+        "score": float,
+        "text": str,          # 👈 canonical product text
+        "metadata": dict
+    }
     """
 
     if not results:
         return []
 
-    # Build texts for clustering
+    # =======================
+    # 1️⃣ Extract texts
+    # =======================
     texts = []
+    valid_results = []
+
     for r in results:
-        meta = r["metadata"]
-        text = " ".join([
-            meta.get("category", ""),
-            meta.get("url", ""),
-        ])
-        texts.append(text.strip())
+        text = r.get("text", "")
+        if text and text.strip():
+            texts.append(text.strip())
+            valid_results.append(r)
 
-    embeddings = _embed_texts(texts)
-    assignments = _simple_kmeans(embeddings, num_clusters)
+    if not texts:
+        # fallback: return everything as one cluster
+        return [{
+            "cluster_id": 0,
+            "size": len(results),
+            "items": results,
+        }]
 
+    # =======================
+    # 2️⃣ Embed texts
+    # =======================
+    embeddings = embed_texts(texts)
+
+    # =======================
+    # 3️⃣ Cluster embeddings
+    # =======================
+    assignments = simple_kmeans(
+        embeddings,
+        k=num_clusters,
+    )
+
+    # =======================
+    # 4️⃣ Build clusters
+    # =======================
     clusters = defaultdict(list)
 
     for idx, cluster_id in enumerate(assignments):
-        clusters[cluster_id].append(results[idx])
+        clusters[cluster_id].append(valid_results[idx])
 
+    # =======================
+    # 5️⃣ Format output
+    # =======================
     output = []
+
     for cluster_id, items in clusters.items():
         output.append({
             "cluster_id": cluster_id,
@@ -115,7 +165,7 @@ def cluster_results(
 if __name__ == "__main__":
     from rag.retrieval.search import search
 
-    query = "bicchieri da vino"
+    query = "bicchieri da vino per ristorante"
     results = search(query, top_k=20)
 
     clusters = cluster_results(results, num_clusters=3)
@@ -125,7 +175,6 @@ if __name__ == "__main__":
 
     for c in clusters:
         print(f"Cluster {c['cluster_id']} | size={c['size']}")
-        for item in c["items"][:3]:
-            meta = item["metadata"]
-            print(f"  - {meta.get('category')} (score={item['score']:.3f})")
+        for item in c["items"][:2]:
+            print(f"  - score={item['score']:.3f}")
         print()

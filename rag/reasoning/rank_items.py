@@ -2,7 +2,7 @@ from typing import List, Dict
 
 def rank_items(items, top_k=5):
     if not items:
-        print("⚠️ rank_items: empty items list")
+        print(" rank_items: empty items list")
         return []
 
     print(f"🔢 Ranking {len(items)} items")

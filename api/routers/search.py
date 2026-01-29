@@ -1,6 +1,7 @@
 from fastapi import APIRouter
-from pydantic import BaseModel
 from typing import Optional, Dict
+from pydantic import BaseModel, Field
+
 
 from rag.retrieval.search import search
 from rag.reasoning.cluster_results import cluster_results
@@ -10,9 +11,12 @@ router = APIRouter()
 
 
 class SearchRequest(BaseModel):
-    query: str
-    top_k: int = 20
-    filters: Optional[Dict] = None
+    query: str = Field(..., example="piatto bianco")
+    top_k: int = Field(20, example=20)
+    filters: Optional[Dict[str, str]] = Field(
+        default=None,
+        example=None
+    )
 
 
 @router.post("/")
@@ -20,7 +24,6 @@ def simple_search(req: SearchRequest):
     results = search(
         query=req.query,
         top_k=req.top_k,
-        filters=req.filters,
     )
     return {"results": results}
 

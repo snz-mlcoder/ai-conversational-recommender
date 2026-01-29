@@ -115,9 +115,10 @@ def search(
 
         results.append({
             "score": float(score),
-            "embedding": None,  # ❗ optional: add later if needed
+            "text": meta.get("text"),    
             "metadata": meta,
-        })
+})
+
 
     return results
 
