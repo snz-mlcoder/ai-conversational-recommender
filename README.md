@@ -24,3 +24,11 @@ This is an **MVP / learning-oriented project**.
 ├── data/               # Raw and processed data
 ├── requirements.txt
 └── README.md
+
+# AI Conversation Project
+
+This repository contains multiple versions of the chatbot.
+
+## Versions
+- v2: Product-level chunking (legacy stable version)
+- v3: Per-product chunking (experimental)

@@ -1,0 +1,66 @@
+{
+  "message": "Ecco alcune opzioni adatte a questo utilizzo:",
+  "products": [
+    {
+      "score": 0.6656913757324219,
+      "text": null,
+      "metadata": {
+        "id": "2315",
+        "url": "https://horecamart.it/9750/piatto-pcl-royal-zen-bb-tondo-32.jpg",
+        "category": "Home",
+        "source": "company_catalog",
+        "images": [],
+        "chunk_index": 0
+      }
+    },
+    {
+      "score": 0.6636123061180115,
+      "text": null,
+      "metadata": {
+        "id": "1137",
+        "url": "https://horecamart.it//piatto-trianon-bb-tondo-273-68977.jpg",
+        "category": "Home",
+        "source": "company_catalog",
+        "images": [],
+        "chunk_index": 0
+      }
+    },
+    {
+      "score": 0.644960880279541,
+      "text": null,
+      "metadata": {
+        "id": "2348",
+        "url": "https://horecamart.it/22049/piatto-pcl-oslo-bb-tondo-cm32.jpg",
+        "category": "Home",
+        "source": "company_catalog",
+        "images": [],
+        "chunk_index": 0
+      }
+    },
+    {
+      "score": 0.6382814645767212,
+      "text": null,
+      "metadata": {
+        "id": "1137",
+        "url": "https://horecamart.it//piatto-trianon-bb-tondo-273-68977.jpg",
+        "category": "Home",
+        "source": "company_catalog",
+        "images": [],
+        "chunk_index": 0
+      }
+    },
+    {
+      "score": 0.6317956447601318,
+      "text": null,
+      "metadata": {
+        "id": "2315",
+        "url": "https://horecamart.it/9750/piatto-pcl-royal-zen-bb-tondo-32.jpg",
+        "category": "Home",
+        "source": "company_catalog",
+        "images": [],
+        "chunk_index": 0
+      }
+    }
+  ],
+  "intent": "READY_FOR_SEARCH"
+}
