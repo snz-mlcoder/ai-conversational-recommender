@@ -3,12 +3,39 @@
 from rag.workflow.schemas import SearchMemory
 
 
+def normalize_value(value: str | None) -> str | None:
+    if value is None:
+        return None
+
+    v = value.strip().lower()
+
+    if v in {"", "string", "none", "null", "undefined"}:
+        return None
+
+    return value
+
+
 def update_memory(memory, updates: dict):
     if not updates:
         return memory
 
     for key, value in updates.items():
-        setattr(memory, key, value)
+
+        # 🔥 attributes: merge only
+        if key == "attributes" and isinstance(value, dict):
+            for attr_key, attr_value in value.items():
+                if isinstance(attr_value, str):
+                    attr_value = normalize_value(attr_value)
+                if attr_value is not None:
+                    memory.attributes[attr_key] = attr_value
+            continue
+
+        # normal fields
+        if isinstance(value, str):
+            value = normalize_value(value)
+
+        if value is not None:
+            setattr(memory, key, value)
 
     return memory
 
@@ -16,43 +43,33 @@ def update_memory(memory, updates: dict):
 
 
 def memory_ready(memory) -> bool:
-    """
-    MVP readiness check.
-    We only require high-signal fields.
-    """
-
     required_fields = [
-        memory.category,
-        memory.product_type,
-        memory.use_case,
+        normalize_value(memory.category),
+        normalize_value(memory.product_type),
+        normalize_value(memory.use_case),
     ]
 
-    filled = [f for f in required_fields if f and f.strip()]
+    filled = [f for f in required_fields if f]
 
     return len(filled) >= 2
-
-"""علتی که اینجوری چک می‌کنیم چیه؟
-
-اگر حداقل ۲ تا از اینا باشه → OK
-
-attributes اصلاً مهم نیست
-
-بعداً راحت می‌تونی rule رو تغییر بدی"""
 
 
 def memory_to_text(memory: SearchMemory) -> str:
     """
     Deterministic conversion to search query.
     """
-    parts = []
+    parts: list[str] = []
 
     if memory.product_type:
-        parts.append(memory.product_type)
+        parts.append(str(memory.product_type))
 
     if memory.use_case:
-        parts.append(f"for {memory.use_case}")
+        parts.append(str(memory.use_case))
 
-    for k, v in memory.attributes.items():
-        parts.append(f"{v} {k}")
+    for v in memory.attributes.values():
+        if isinstance(v, str):
+            parts.append(v)
 
     return " ".join(parts)
+
+

@@ -94,6 +94,8 @@ class ProductSearchEngine:
                 "score": float(score),
                 "category": meta.get("category"),
                 "source": meta.get("source"),
+                "url": meta.get("url"),      
+                "images": meta.get("images", []),
             })
 
         return results

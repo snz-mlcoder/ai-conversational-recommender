@@ -2,6 +2,7 @@
 
 from typing import Dict
 from rag.workflow.schemas import SearchMemory
+from rag.workflow.intent import extract_product_signals
 
 
 def extract_memory_updates(
@@ -9,33 +10,52 @@ def extract_memory_updates(
     memory: SearchMemory
 ) -> Dict:
     """
-    MVP extractor.
-    Rule-based, conservative.
-    Only extracts high-confidence signals.
+    Domain-aware memory extractor.
+    Reuses product signal extraction from intent layer.
     """
 
-    text = user_message.lower()
+    signals = extract_product_signals(user_message)
     updates: Dict = {}
 
-    # ---- product_type ----
-    if "glass" in text:
-        updates["product_type"] = "glass"
+    # --------------------
+    # product_type (items)
+    # --------------------
+    if "items" in signals:
+        # take the strongest / first item
+        updates["product_type"] = signals["items"][0]
 
-    if "wine glass" in text or "wine glasses" in text:
-        updates["product_type"] = "wine glass"
+    # --------------------
+    # use_case
+    # --------------------
+    if "use_cases" in signals:
+        updates["use_case"] = signals["use_cases"][0]
 
-    # ---- use_case ----
-    if "dinner" in text:
-        updates["use_case"] = "dinner"
+    # --------------------
+    # attributes (merge!)
+    # --------------------
+    attrs = {}
 
-    if "party" in text:
-        updates["use_case"] = "party"
+    if "colors" in signals:
+        attrs["color"] = signals["colors"][0]
 
-    # ---- category (only if missing) ----
-    if not memory.category and "glass" in text:
-        updates["category"] = "drinkware"
+    if "materials" in signals:
+        attrs["material"] = signals["materials"][0]
 
-    # ---- attributes (future-ready) ----
-    updates["attributes"] = {}
+    if "sizes" in signals:
+        attrs["size"] = signals["sizes"][0]
+
+    if "shapes" in signals:
+        attrs["shape"] = signals["shapes"][0]
+
+    if attrs:
+        updates["attributes"] = attrs
+
+
+
+    # --------------------
+    # category (optional, conservative)
+    # --------------------
+    if not memory.category and "items" in signals:
+        updates["category"] = "tableware"
 
     return updates
