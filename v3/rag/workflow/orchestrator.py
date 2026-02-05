@@ -10,7 +10,7 @@ from rag.workflow.ask_back_questions import (
     ASK_BACK_QUESTIONS_IT, build_refinement_question_it,
 )
 from rag.workflow.refinement import suggest_refinements
-
+from rag.workflow.handlers.material_knowledge import handle_material_knowledge
 
 def handle_user_message(user_message, memory):
 
@@ -20,6 +20,14 @@ def handle_user_message(user_message, memory):
     # 2️⃣ Extract & update memory
     updates = extract_memory(user_message, memory)
     memory = update_memory(memory, updates)
+
+    # 🔥 2.3️⃣ MATERIAL KNOWLEDGE — early exit
+    if intent == Intent.MATERIAL_KNOWLEDGE:
+        return (
+            handle_material_knowledge(user_message),
+            memory,
+            {"intent": intent.value},
+        )
 
     # 2.5️⃣ Blocking Ask-Back (pre-RAG)
     ask_back = decide_ask_back(memory)
@@ -43,7 +51,7 @@ def handle_user_message(user_message, memory):
     if memory_ready(memory):
         intent = Intent.PRODUCT_SEARCH
 
-    # 4️⃣ Non-search intents
+    # 4️⃣ Non-search intents (store_info / promotion / small_talk)
     if intent != Intent.PRODUCT_SEARCH:
         return (
             "Hi! How can I help you?",
@@ -60,7 +68,7 @@ def handle_user_message(user_message, memory):
 
     reply = generate_explanation(results)
 
-    # 6️⃣ 🔹 Refinement suggestion (non-blocking, post-RAG)
+    # 6️⃣ Refinement suggestion (post-RAG)
     refinements = suggest_refinements(memory)
     refinement_question = build_refinement_question_it(refinements)
 

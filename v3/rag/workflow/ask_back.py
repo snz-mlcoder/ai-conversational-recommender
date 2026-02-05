@@ -3,7 +3,7 @@ from rag.workflow.schemas import AskBackResult, SearchMemory
 
 def decide_ask_back(memory: SearchMemory) -> AskBackResult:
 
-    # 1️⃣ Blocking: product type
+    # 🔥 تنها شرط اجباری
     if not memory.product_type:
         return AskBackResult(
             should_ask=True,
@@ -11,14 +11,7 @@ def decide_ask_back(memory: SearchMemory) -> AskBackResult:
             reason="missing_product_type",
         )
 
-    # 2️⃣ Blocking: use case
-    if not memory.use_case:
-        return AskBackResult(
-            should_ask=True,
-            slot="use_case",
-            reason="missing_use_case",
-        )
-
-    # 3️⃣ Non-blocking attributes ❌ REMOVED
+    # use_case دیگر blocking نیست
     return AskBackResult(should_ask=False)
+
 

@@ -1,59 +1,49 @@
-# rag/workflow/intent.py
-
 from enum import Enum
-from typing import Dict, List
-from rag.workflow.vocab import PRODUCT_SIGNAL_GROUPS
+from rag.workflow.intent_vocab import (
+    STORE_INFO_TERMS,
+    PROMOTION_TERMS,
+    MATERIAL_KNOWLEDGE_TERMS,
+    
+)
+from rag.workflow.signals import has_product_signal, extract_product_signals, is_question
 
 
-
-# ==========================
-# Intent enum
-# ==========================
 
 class Intent(Enum):
     SMALL_TALK = "small_talk"
+    PRODUCT_SEARCH = "product_search"
     STORE_INFO = "store_info"
     PROMOTION = "promotion"
-    PRODUCT_SEARCH = "product_search"
+    MATERIAL_KNOWLEDGE = "material_knowledge"
 
 
-# ==========================
-# Signal extraction
-# ==========================
+def contains_any(text: str, terms: set[str]) -> bool:
+    return bool(terms) and any(term in text for term in terms)
 
-def extract_product_signals(text: str) -> Dict[str, List[str]]:
-    """
-    Extract product-related signals grouped by semantic category.
-    """
-    text = text.lower()
-    found: Dict[str, List[str]] = {}
-
-    for group, keywords in PRODUCT_SIGNAL_GROUPS.items():
-        matches = [kw for kw in keywords if kw in text]
-        if matches:
-            found[group] = matches
-
-    return found
-
-
-def has_product_signal(text: str, min_groups: int = 1) -> bool:
-    """
-    Decide whether the text contains enough product-related signals.
-    """
-    signals = extract_product_signals(text)
-    return len(signals) >= min_groups
-
-
-# ==========================
-# Intent detection
-# ==========================
 
 def detect_intent(user_message: str) -> Intent:
-    """
-    Domain-aware, signal-based intent detection.
-    """
-    if has_product_signal(user_message, min_groups=1):
+    text = user_message.lower()
+    signals = extract_product_signals(text)
+
+    # 1️⃣ Product search (item wins)
+    if has_product_signal(text):
         return Intent.PRODUCT_SEARCH
+
+    # 2️⃣ 🔥 Material knowledge disambiguation
+    if (
+        "materials" in signals
+        and "items" not in signals
+        and is_question(text)
+    ):
+        return Intent.MATERIAL_KNOWLEDGE
+
+    # 3️⃣ Promotion
+    if contains_any(text, PROMOTION_TERMS):
+        return Intent.PROMOTION
+
+    # 4️⃣ Store info
+    if contains_any(text, STORE_INFO_TERMS):
+        return Intent.STORE_INFO
 
     return Intent.SMALL_TALK
 

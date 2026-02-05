@@ -2,7 +2,7 @@
 
 from typing import Dict
 from rag.workflow.schemas import SearchMemory
-from rag.workflow.intent import extract_product_signals
+from rag.workflow.signals import extract_product_signals
 from rag.workflow.vocab import PRODUCT_SIGNAL_GROUPS, NEGATION_WORDS
 
 

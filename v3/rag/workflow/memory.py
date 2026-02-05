@@ -73,14 +73,7 @@ def update_memory(memory: SearchMemory, updates: dict) -> SearchMemory:
 # Memory readiness
 # --------------------
 def memory_ready(memory: SearchMemory) -> bool:
-    required_fields = [
-        normalize_value(memory.category),
-        normalize_value(memory.product_type),
-        normalize_value(memory.use_case),
-    ]
-
-    filled = [f for f in required_fields if f]
-    return len(filled) >= 2
+        return bool(memory.product_type)
 
 
 # --------------------
@@ -105,3 +98,12 @@ def memory_to_text(memory: SearchMemory) -> str:
 
     return " ".join(parts)
 
+def memory_confidence(memory: SearchMemory) -> float:
+    """
+    Placeholder for future confidence scoring.
+    Currently unused.
+    """
+    return 1.0 if memory.product_type else 0.0
+# NOTE:
+# memory_confidence will be introduced when
+# ask-back / refinement become probabilistic
