@@ -14,3 +14,8 @@ class SearchMemory(BaseModel):
     exclusions: Dict = {}
 
 
+
+class AskBackResult(BaseModel):
+    should_ask: bool
+    slot: Optional[str] = None   # 👈 WHAT is missing
+    reason: Optional[str] = None # WHY

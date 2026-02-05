@@ -65,8 +65,6 @@ def extract_memory(
     if "use_cases" in signals:
         updates["use_case"] = signals["use_cases"][0]
     
-    if negations:
-        updates["negations"] = negations
 
     # --------------------
     # attributes (merge!)
@@ -88,16 +86,16 @@ def extract_memory(
     if attrs:
         updates["attributes"] = attrs
 
-
+  # --------------------
+    # negations
+    # --------------------
+    if negations:
+        updates["negations"] = negations
 
     # --------------------
-    # category (optional, conservative)
+    # conservative category
     # --------------------
     if not memory.category and "items" in signals:
         updates["category"] = "tableware"
 
-    return {
-        "updates": {...},
-        "negations": {...},
-        "events": {...},
-    }
+    return updates
