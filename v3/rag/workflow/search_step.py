@@ -40,3 +40,5 @@ def build_rag_query(memory, user_message: str) -> RAGQuery:
 def call_rag(rag_query):
     engine = get_search_engine()
     return engine.search(rag_query.text)
+
+

@@ -3,9 +3,44 @@
 from typing import Dict
 from rag.workflow.schemas import SearchMemory
 from rag.workflow.intent import extract_product_signals
+from rag.workflow.vocab import PRODUCT_SIGNAL_GROUPS, NEGATION_WORDS
 
 
-def extract_memory_updates(
+NEGATION_ANY = "__ANY__"
+
+
+def extract_negations(text: str) -> dict:
+    text = text.lower()
+    negations: dict = {}
+
+    # اگر اصلاً negation word نداشت، سریع خارج شو
+    if not any(n in text for n in NEGATION_WORDS):
+        return negations
+
+    # روی همه‌ی گروه‌ها loop بزن
+    for group_name, vocab in PRODUCT_SIGNAL_GROUPS.items():
+
+        # فقط attribute-like groups
+        if group_name not in {"colors", "materials", "sizes", "shapes"}:
+            continue
+
+        found = [term for term in vocab if term in text]
+
+        if not found:
+            continue
+
+        # چند مقدار → remove whole attribute
+        if len(found) >= 2:
+            negations[group_name[:-1]] = NEGATION_ANY
+        else:
+            # یک مقدار → remove specific value
+            negations[group_name[:-1]] = found[0]
+
+    return negations
+
+
+
+def extract_memory(
     user_message: str,
     memory: SearchMemory
 ) -> Dict:
@@ -16,7 +51,7 @@ def extract_memory_updates(
 
     signals = extract_product_signals(user_message)
     updates: Dict = {}
-
+    negations = extract_negations(user_message)
     # --------------------
     # product_type (items)
     # --------------------
@@ -29,6 +64,9 @@ def extract_memory_updates(
     # --------------------
     if "use_cases" in signals:
         updates["use_case"] = signals["use_cases"][0]
+    
+    if negations:
+        updates["negations"] = negations
 
     # --------------------
     # attributes (merge!)
@@ -58,4 +96,8 @@ def extract_memory_updates(
     if not memory.category and "items" in signals:
         updates["category"] = "tableware"
 
-    return updates
+    return {
+        "updates": {...},
+        "negations": {...},
+        "events": {...},
+    }
