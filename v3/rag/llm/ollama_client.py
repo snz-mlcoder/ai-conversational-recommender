@@ -7,7 +7,7 @@ class OllamaClient:
 
     def generate(self, prompt: str, temperature: float = 0.2) -> str:
         payload = {
-            "model": "llama3",
+            "model": "phi3:mini",
             "prompt": prompt,
             "stream": False,
             "options": {

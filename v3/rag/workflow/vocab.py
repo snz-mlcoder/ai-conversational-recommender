@@ -114,7 +114,7 @@ PRODUCT_SIGNAL_GROUPS: Dict[str, set[str]] = {
         "grande", "large",
         "mini",
         "xl", "extra large",
-        "cm", "mm", "kg", "ml", "l",
+        "cm", "mm", "kg", "ml", "litro", "litri",
     },
 
     "shapes": {
@@ -153,24 +153,6 @@ NEGATION_WORDS = {
 NEGATION_ANY = "__ANY__"
 
 
-# -------------------------
-# Intent-specific vocabularies
-# -------------------------
-
-STORE_INFO_TERMS = {
-    "spedizione", "resi", "reso",
-    "pagamento", "pagamenti",
-    "orari", "orario",
-    "negozio", "contatti",
-    "fattura", "assistenza",
-}
-
-PROMOTION_TERMS = {
-    "sconto", "sconti",
-    "offerta", "offerte",
-    "promozione", "promozioni",
-    "saldi",
-}
 
 # 🔥 Knowledge = materials WITHOUT product intent
 MATERIAL_KNOWLEDGE_TERMS = set(PRODUCT_SIGNAL_GROUPS["materials"])

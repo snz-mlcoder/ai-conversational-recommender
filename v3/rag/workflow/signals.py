@@ -1,19 +1,25 @@
 from rag.workflow.vocab import PRODUCT_SIGNAL_GROUPS
 
-QUESTION_TOKENS_IT = {
-    "è", "sono", "fa", "posso",
-    "sicuro", "sicura",
-    "adatto", "adatta",
-    "meglio", "peggio",
-    "differenza",
-    "?",  # مهم!
+QUESTION_STARTERS = {
+    "è", "è",
+    "qual", "quale", "quali",
+    "come",
+    "quanto", "quanti", "quanta",
+    "posso",
+    "si può", "si puo",
+    "meglio",
+    "conviene",
+    "perché", "perche",
 }
 
 def is_question(text: str) -> bool:
-    return (
-        "?" in text
-        or any(tok in text for tok in QUESTION_TOKENS_IT)
-    )
+    text = text.strip().lower()
+
+    if "?" in text:
+        return True
+
+    return any(text.startswith(q) for q in QUESTION_STARTERS)
+
 
 def extract_product_signals(text: str) -> dict:
     text = text.lower()
@@ -33,8 +39,3 @@ def has_product_signal(text: str) -> bool:
 
 
 
-def is_question(text: str) -> bool:
-    return (
-        "?" in text
-        or any(tok in text for tok in QUESTION_TOKENS_IT)
-    )

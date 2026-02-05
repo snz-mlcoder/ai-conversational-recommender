@@ -11,6 +11,8 @@ from rag.workflow.ask_back_questions import (
 )
 from rag.workflow.refinement import suggest_refinements
 from rag.workflow.handlers.material_knowledge import handle_material_knowledge
+from rag.workflow.handlers.store_info import handle_store_info
+from rag.workflow.handlers.promotion import handle_promotion
 
 def handle_user_message(user_message, memory):
 
@@ -18,8 +20,10 @@ def handle_user_message(user_message, memory):
     intent = detect_intent(user_message)
 
     # 2️⃣ Extract & update memory
-    updates = extract_memory(user_message, memory)
-    memory = update_memory(memory, updates)
+    if intent == Intent.PRODUCT_SEARCH:
+
+        updates = extract_memory(user_message, memory)
+        memory = update_memory(memory, updates)
 
     # 🔥 2.3️⃣ MATERIAL KNOWLEDGE — early exit
     if intent == Intent.MATERIAL_KNOWLEDGE:
@@ -28,6 +32,21 @@ def handle_user_message(user_message, memory):
             memory,
             {"intent": intent.value},
         )
+    if intent == Intent.STORE_INFO:
+        return (
+            handle_store_info(user_message),
+            memory,
+            {"intent": intent.value},
+    )
+
+    if intent == Intent.PROMOTION:
+        return (
+            handle_promotion(),
+            memory,
+            {"intent": intent.value},
+    )
+
+
 
     # 2.5️⃣ Blocking Ask-Back (pre-RAG)
     ask_back = decide_ask_back(memory)
