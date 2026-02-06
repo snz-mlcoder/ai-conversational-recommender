@@ -20,3 +20,15 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+# Python virtual environments
+venv/
+.v
+.env
+.venv/
+
+# venv inside versioned folders
+v3/venv/
+v3/.venv/
+rag/.venv/
+rag/venv/
