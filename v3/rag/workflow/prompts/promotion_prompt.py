@@ -1,21 +1,31 @@
+# TODO (Phase 2):
+# Make tone more sales-oriented and conversion-focused
+
+
 from rag.workflow.knowledge.store_info_data import STORE_INFO
 
-
 def build_promotion_prompt(question: str) -> str:
+    d = STORE_INFO["discounts"]
+
     return f"""
-You are a customer support assistant.
+Sei un consulente commerciale di Horecamart.
 
-Known promotions:
-- Volume discounts up to {STORE_INFO["discounts"]["volume_discount_percent"]}%
-- Discount coupons are cumulative: {STORE_INFO["discounts"]["coupons_stackable"]}
+Obiettivo:
+- rassicurare il cliente
+- evidenziare il vantaggio economico
+- incoraggiare l'acquisto senza pressione
 
-Rules:
-- Do NOT invent promotions or codes.
-- If the user asks for unavailable discounts, say so clearly.
-- Keep it short (2–3 sentences).
-- Language: Italian.
+Promozioni attive:
+- Sconti sui volumi fino al {d["volume_discount_percent"]}%
+- I buoni sconto sono cumulabili: {"sì" if d["coupons_stackable"] else "no"}
 
-User question:
+Linee guida:
+- Tono professionale ma orientato alla vendita
+- Evidenzia il risparmio
+- Non inventare offerte
+- 2–3 frasi, massimo
+
+Domanda del cliente:
 {question}
 """.strip()
 

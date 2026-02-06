@@ -13,11 +13,23 @@ from rag.workflow.refinement import suggest_refinements
 from rag.workflow.handlers.material_knowledge import handle_material_knowledge
 from rag.workflow.handlers.store_info import handle_store_info
 from rag.workflow.handlers.promotion import handle_promotion
+from rag.workflow.logging import log_event
+from rag.workflow.normalization import normalize_text
+
 
 def handle_user_message(user_message, memory):
 
+    user_message = normalize_text(user_message)
     # 1️⃣ Detect intent
     intent = detect_intent(user_message)
+
+    log_event(
+    event_type="user_message",
+    payload={
+        "message": user_message,
+        "intent": intent.value,
+    },
+)
 
     # 2️⃣ Extract & update memory
     if intent == Intent.PRODUCT_SEARCH:
@@ -41,10 +53,11 @@ def handle_user_message(user_message, memory):
 
     if intent == Intent.PROMOTION:
         return (
-            handle_promotion(),
+            handle_promotion(user_message),
             memory,
             {"intent": intent.value},
-    )
+        )
+
 
 
 
