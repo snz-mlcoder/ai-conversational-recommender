@@ -65,6 +65,12 @@ def extract_memory(
     if "use_cases" in signals:
         updates["use_case"] = signals["use_cases"][0]
     
+  # --------------------
+    # occasion
+    # --------------------
+
+    if "occasions" in signals:
+         updates["occasion"] = signals["occasions"][0]
 
     # --------------------
     # attributes (merge!)

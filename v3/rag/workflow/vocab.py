@@ -127,15 +127,54 @@ PRODUCT_SIGNAL_GROUPS: Dict[str, set[str]] = {
 
 
     # -------- Use cases --------
-    "use_cases": {
-        "ristorante", "restaurant",
-        "bar",
-        "hotel",
-        "casa", "home",
-        "catering",
-        "buffet",
+   "use_cases": {
+    # commercial
+    "ristorante", "restaurant",
+    "bar",
+    "hotel",
+    "catering",
+    "buffet",
+
+    # domestic
+    "casa", "home",
+    "cucina",
+},
+    
+
+    "occasions": {
+        # generic events
+        "festa", "party",
+        "evento", "event",
+        "cerimonia",
+
+        # personal celebrations
+        "compleanno", "birthday",
+        "anniversario", "anniversary",
+        "laurea", "graduation",
+        "battesimo",
+        "comunione",
+        "cresima",
+        "matrimonio", "wedding",
+
+        # seasonal / holidays
+        "natale", "christmas",
+        "capodanno", "new year",
+        "pasqua", "easter",
+        "san valentino", "valentine",
+        "halloween",
+
+        # informal
+        "aperitivo",
+        "cena tra amici",
+        "pranzo in famiglia",
     },
+
+
 }
+
+
+
+
 
 
 

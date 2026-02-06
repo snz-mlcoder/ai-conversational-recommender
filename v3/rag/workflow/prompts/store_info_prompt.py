@@ -1,3 +1,7 @@
+# (Phase 2):
+# Make tone more sales-oriented and conversion-focused
+
+
 from rag.workflow.knowledge.store_info_data import STORE_INFO
 
 

@@ -39,3 +39,27 @@ def has_product_signal(text: str) -> bool:
 
 
 
+def has_search_signal(text: str) -> bool:
+    """
+    True if the text contains any signal that suggests a product search,
+    even if product_type is missing (vague search).
+    """
+    signals = extract_product_signals(text)
+
+    return bool(
+        signals.get("items")       # product_type
+        or signals.get("use_cases")
+        or signals.get("occasions")
+        or signals.get("materials")
+        or signals.get("colors")
+        or signals.get("sizes")
+        or signals.get("shapes")
+    )
+
+def has_search_signal_from_updates(updates: dict) -> bool:
+    return bool(
+        updates.get("product_type")
+        or updates.get("occasion")
+        or updates.get("use_case")
+        or updates.get("attributes")
+    )

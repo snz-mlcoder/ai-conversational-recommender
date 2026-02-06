@@ -1,4 +1,5 @@
 # rag/workflow/memory.py
+# TODO [PHASE-2]: introduce probabilistic memory confidence
 
 from rag.workflow.schemas import SearchMemory
 
@@ -59,7 +60,7 @@ def update_memory(memory: SearchMemory, updates: dict) -> SearchMemory:
             continue
 
        # 3️⃣ ONLY allow known scalar fields
-        if key not in {"category", "product_type", "use_case"}:
+        if key not in {"category", "product_type", "use_case", "occasion"}:
             continue  # 🚫 ignore unknown keys safely
         norm_value = normalize_value(value) if isinstance(value, str) else value
         if norm_value is not None:
@@ -88,6 +89,9 @@ def memory_to_text(memory: SearchMemory) -> str:
 
     if memory.product_type:
         parts.append(memory.product_type)
+        
+    if getattr(memory, "occasion", None):
+        parts.append(f"per {memory.occasion}")
 
     if memory.use_case:
         parts.append(memory.use_case)

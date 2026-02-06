@@ -1,4 +1,8 @@
+# [PHASE-2]: optional LLM-assisted intent disambiguation
+
+
 from enum import Enum
+from rag.workflow.signals import has_search_signal
 
 from rag.workflow.intent_vocab import (
     STORE_INFO_TERMS,
@@ -26,6 +30,8 @@ def contains_any(text: str, terms: set[str]) -> bool:
     return bool(terms) and any(term in text for term in terms)
 
 
+from rag.workflow.signals import has_search_signal
+
 def detect_intent(user_message: str) -> Intent:
     text = user_message.lower()
     signals = extract_product_signals(text)
@@ -38,15 +44,20 @@ def detect_intent(user_message: str) -> Intent:
     if contains_any(text, PROMOTION_TERMS):
         return Intent.PROMOTION
 
-    # 3️⃣ Product search ALWAYS wins if item exists
+    # 3️⃣ Explicit product search
     if "items" in signals:
         return Intent.PRODUCT_SEARCH
 
-    # 4️⃣ Material knowledge (informational only)
+    # 4️⃣ Vague product search (NEW)
+    if has_search_signal(text):
+        return Intent.PRODUCT_SEARCH
+
+    # 5️⃣ Material knowledge (informational)
     if "materials" in signals and is_question(text):
         return Intent.MATERIAL_KNOWLEDGE
 
     return Intent.SMALL_TALK
+
 
 
 

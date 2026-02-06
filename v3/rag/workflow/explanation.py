@@ -1,4 +1,5 @@
 # rag/workflow/explanation.py
+# [PHASE-2]: richer explanation based on clusters and attributes
 
 def generate_explanation(results):
     """

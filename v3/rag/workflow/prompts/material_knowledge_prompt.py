@@ -1,3 +1,7 @@
+# (Phase 2):
+# Make tone more sales-oriented and conversion-focused
+
+
 def build_material_knowledge_prompt(question: str) -> str:
     return f"""
 You are an expert in kitchen and tableware materials.

@@ -30,3 +30,11 @@ def handle_promotion(question: str) -> str:
 
     # 🎯 selling tone
     return " ".join(parts)
+
+'''# future
+if long_or_complex_question:
+    return llm_paraphrase(
+        base_answer=deterministic_answer,
+        tone="sales",
+    )
+'''

@@ -1,28 +1,24 @@
-{"event_type": "user_message", "timestamp": "2026-02-06T09:44:07.282855", "message": "ciao", "intent": "small_talk"}
-{"event_type": "user_message", "timestamp": "2026-02-06T09:44:38.251523", "message": "come stai?", "intent": "small_talk"}
-{"event_type": "user_message", "timestamp": "2026-02-06T09:45:00.797337", "message": "aiutami?", "intent": "small_talk"}
-{"event_type": "user_message", "timestamp": "2026-02-06T09:45:18.766316", "message": "come funziona la spedizione??", "intent": "store_info"}
-{"event_type": "user_message", "timestamp": "2026-02-06T09:45:36.580100", "message": "quanto tempo ci mette la consegna?", "intent": "store_info"}
-{"event_type": "user_message", "timestamp": "2026-02-06T09:45:53.123126", "message": "avete spedizione gratuita?", "intent": "store_info"}
-{"event_type": "user_message", "timestamp": "2026-02-06T09:46:15.371853", "message": "posso fare un reso??", "intent": "small_talk"}
-{"event_type": "user_message", "timestamp": "2026-02-06T09:46:40.080262", "message": "entro quanti giorni posso restituire un prodotto?", "intent": "small_talk"}
-{"event_type": "user_message", "timestamp": "2026-02-06T09:47:05.239148", "message": "come funziona il rimborso?", "intent": "store_info"}
-{"event_type": "user_message", "timestamp": "2026-02-06T09:47:44.838865", "message": "avete sconti?", "intent": "promotion"}
-{"event_type": "user_message", "timestamp": "2026-02-06T09:48:02.407661", "message": "fate prezzi per grandi quantità?", "intent": "promotion"}
-{"event_type": "user_message", "timestamp": "2026-02-06T09:48:15.668317", "message": "si può pagare a rate?", "intent": "promotion"}
-{"event_type": "user_message", "timestamp": "2026-02-06T09:48:31.357105", "message": "ci sono promozioni attive?", "intent": "small_talk"}
-{"event_type": "user_message", "timestamp": "2026-02-06T09:48:56.867733", "message": "il vetro è sicuro?", "intent": "material_knowledge"}
-{"event_type": "user_message", "timestamp": "2026-02-06T09:50:55.087992", "message": "bicchieri grandi trasparenti?", "intent": "small_talk"}
-{"event_type": "user_message", "timestamp": "2026-02-06T09:51:03.986788", "message": "bicchieri grandi trasparenti?", "intent": "small_talk"}
-{"event_type": "user_message", "timestamp": "2026-02-06T09:51:17.123410", "message": "mi servono piatti per ristorante?", "intent": "small_talk"}
-{"event_type": "user_message", "timestamp": "2026-02-06T09:51:32.344115", "message": "mi servono piatti per ristorante", "intent": "small_talk"}
-{"event_type": "user_message", "timestamp": "2026-02-06T09:51:44.472011", "message": "mi servono piatti ", "intent": "small_talk"}
-{"event_type": "user_message", "timestamp": "2026-02-06T09:51:53.883407", "message": "mi servono piatto ", "intent": "product_search"}
-{"event_type": "user_message", "timestamp": "2026-02-06T09:52:25.782982", "message": "bicchiero grande trasparente", "intent": "small_talk"}
-{"event_type": "user_message", "timestamp": "2026-02-06T09:52:38.125216", "message": "bicchiere grande trasparente", "intent": "product_search"}
-{"event_type": "user_message", "timestamp": "2026-02-06T10:00:30.003687", "message": "bicchiere grande trasparentie", "intent": "product_search"}
-{"event_type": "user_message", "timestamp": "2026-02-06T10:00:49.650451", "message": "mi servono piatto per ristorante", "intent": "product_search"}
-{"event_type": "user_message", "timestamp": "2026-02-06T10:01:09.315385", "message": "tazza bianche", "intent": "product_search"}
-{"event_type": "user_message", "timestamp": "2026-02-06T10:01:44.849823", "message": "come stai", "intent": "small_talk"}
-{"event_type": "user_message", "timestamp": "2026-02-06T10:03:06.300244", "message": "bicchiere grande trasparente", "intent": "product_search"}
-{"event_type": "user_message", "timestamp": "2026-02-06T10:03:40.288176", "message": "mi servono piatto per ristorante", "intent": "product_search"}
+{"event_type": "user_message", "timestamp": "2026-02-06T14:47:36.969337", "message": "bicchere", "intent": "small_talk"}
+{"event_type": "user_message", "timestamp": "2026-02-06T15:10:36.121404", "message": "qualcosa per cucina", "intent": "small_talk"}
+{"event_type": "user_message", "timestamp": "2026-02-06T15:11:17.485100", "message": "qualcosa per festa", "intent": "small_talk"}
+{"event_type": "user_message", "timestamp": "2026-02-06T15:12:37.873156", "message": "bicchere in vetro non plastica", "intent": "small_talk"}
+{"event_type": "user_message", "timestamp": "2026-02-06T15:18:23.646741", "message": "bicchere in vetro non plastica", "intent": "small_talk"}
+{"event_type": "user_message", "timestamp": "2026-02-06T15:22:05.044903", "message": "bicchere", "intent": "product_search"}
+{"event_type": "user_message", "timestamp": "2026-02-06T15:22:09.709729", "message": "bicchiere rosso", "intent": "product_search"}
+{"event_type": "user_message", "timestamp": "2026-02-06T15:22:09.742537", "message": "bicchiere non plastica", "intent": "product_search"}
+{"event_type": "user_message", "timestamp": "2026-02-06T15:24:59.792876", "message": "bicchere", "intent": "small_talk"}
+{"event_type": "user_message", "timestamp": "2026-02-06T15:26:00.243560", "message": "bicchere in vetro non plastica", "intent": "small_talk"}
+{"event_type": "user_message", "timestamp": "2026-02-06T15:26:37.315930", "message": "bicchere", "intent": "small_talk"}
+{"event_type": "user_message", "timestamp": "2026-02-06T15:33:39.336688", "message": "bicchere", "initial_intent": "small_talk", "final_intent": "small_talk", "ask_back": false}
+{"event_type": "user_message", "timestamp": "2026-02-06T15:34:05.373323", "message": "bicchere", "initial_intent": "small_talk", "final_intent": "small_talk", "ask_back": false}
+{"event_type": "user_message", "timestamp": "2026-02-06T15:36:02.866146", "message": "bicchere in vetro non plastica", "initial_intent": "small_talk", "final_intent": "small_talk", "ask_back": false}
+{"event_type": "user_message", "timestamp": "2026-02-06T15:36:44.553273", "message": "qualcosa per cucina", "initial_intent": "small_talk", "final_intent": "small_talk", "ask_back": false}
+{"event_type": "user_message", "timestamp": "2026-02-06T15:45:16.488127", "message": "qualcosa per cucina", "initial_intent": "small_talk", "final_intent": "small_talk", "ask_back": false}
+{"event_type": "user_message", "timestamp": "2026-02-06T15:53:51.420276", "message": "qualcosa per cucina", "initial_intent": "small_talk", "final_intent": "small_talk", "ask_back": false}
+{"event_type": "user_message", "timestamp": "2026-02-06T16:09:13.648557", "message": "bicchiere vetro", "initial_intent": "product_search", "final_intent": "product_search", "ask_back": false}
+{"event_type": "user_message", "timestamp": "2026-02-06T16:11:53.616175", "message": "bicchiere per natale", "initial_intent": "product_search", "final_intent": "product_search", "ask_back": false}
+{"event_type": "user_message", "timestamp": "2026-02-06T16:16:19.880993", "message": "bicchiere per natale", "initial_intent": "product_search", "final_intent": "product_search", "ask_back": false}
+{"event_type": "user_message", "timestamp": "2026-02-06T16:21:17.481123", "message": "bicchiere per natale", "initial_intent": "product_search", "final_intent": "product_search", "ask_back": false}
+{"event_type": "user_message", "timestamp": "2026-02-06T16:30:42.636701", "message": "bicchiere per natale", "initial_intent": "product_search", "final_intent": "product_search", "ask_back": false}
+{"event_type": "user_message", "timestamp": "2026-02-06T16:32:00.578300", "message": "qualcosa per una festa", "initial_intent": "small_talk", "final_intent": "small_talk", "ask_back": false}
+{"event_type": "user_message", "timestamp": "2026-02-06T16:48:59.023599", "message": "qualcosa per una festa", "initial_intent": "product_search", "final_intent": "product_search", "ask_back": true}

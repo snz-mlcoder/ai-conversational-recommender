@@ -22,3 +22,25 @@ def build_refinement_question_it(suggestions: list[str]) -> str | None:
         "Vuoi restringere la scelta? "
         f"Ad esempio puoi specificare: {joined}."
     )
+
+def build_ask_back_question_it(slot: str, memory) -> str:
+    """
+    Context-aware ask-back question (rule-based).
+    """
+    if slot == "product_type":
+        if getattr(memory, "occasion", None):
+            return (
+                f"Che tipo di prodotto stai cercando "
+                f"per {memory.occasion}?"
+            )
+        if memory.use_case:
+            return (
+                f"Che tipo di prodotto stai cercando "
+                f"per {memory.use_case}?"
+            )
+        return (
+            "Che tipo di prodotto stai cercando? "
+            "Ad esempio piatto o bicchiere."
+        )
+
+    return "Puoi darmi qualche dettaglio in più?"
