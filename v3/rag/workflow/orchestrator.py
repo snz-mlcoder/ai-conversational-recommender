@@ -101,9 +101,10 @@ def intent_stage(normalized: str) -> Intent:
 def rule_extraction_stage(normalized: str, memory):
     return extract_memory(normalized, memory)
 
+USE_LLM_FALLBACK = False
 
 def llm_fallback_stage(normalized: str, rule_updates: dict) -> dict:
-    if needs_llm(rule_updates):
+    if USE_LLM_FALLBACK and needs_llm(rule_updates):
         return llm_extract(normalized)
     return {}
 
@@ -306,4 +307,5 @@ def handle_user_message(user_message, memory):
         "intent": intent.value,
         "rag_called": True,
         "num_results": len(results),
+        "results": results[:5],  # return only top 5 for UI
     }

@@ -51,13 +51,8 @@ body {
     margin-bottom: 15px;
 }
 
-.user {
-    text-align: right;
-}
-
-.bot {
-    text-align: left;
-}
+.user { text-align: right; }
+.bot { text-align: left; }
 
 .bubble {
     display: inline-block;
@@ -101,6 +96,7 @@ button {
     flex: 1;
     padding: 20px;
     background: white;
+    overflow-y: auto;
 }
 
 .panel-title {
@@ -114,6 +110,31 @@ button {
     font-size: 13px;
     white-space: pre-wrap;
     margin-bottom: 20px;
+}
+
+/* 🔥 Results Preview */
+
+.result-card {
+    border: 1px solid #e5e7eb;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    background: #fafafa;
+}
+
+.result-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.result-link {
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.result-link:hover {
+    text-decoration: underline;
 }
 </style>
 </head>
@@ -137,11 +158,16 @@ button {
     </div>
 
     <div class="side-panel">
+
         <div class="panel-title">Current Memory State</div>
         <div class="memory-box" id="memoryBox">{}</div>
 
+        <div class="panel-title">Results Preview</div>
+        <div id="resultsPreview"></div>
+
         <div class="panel-title">Debug Info</div>
         <div class="debug-box" id="debugBox">{}</div>
+
     </div>
 
 </div>
@@ -170,6 +196,42 @@ function addMessage(text, sender) {
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
+document.getElementById("userInput")
+    .addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            sendMessage();
+        }
+    });
+
+function renderResults(results) {
+    const container = document.getElementById("resultsPreview");
+    container.innerHTML = "";
+
+    if (!results || results.length === 0) return;
+
+    results.slice(0, 5).forEach(product => {
+
+        const card = document.createElement("div");
+        card.classList.add("result-card");
+
+        const title = document.createElement("div");
+        title.classList.add("result-title");
+        title.innerText = product.title || product.name || "Product";
+
+        const link = document.createElement("a");
+        link.classList.add("result-link");
+        link.href = product.url || product.link || "#";
+        link.target = "_blank";
+        link.innerText = "View Product";
+
+        card.appendChild(title);
+        card.appendChild(link);
+
+        container.appendChild(card);
+    });
+}
+
 async function sendMessage() {
     const input = document.getElementById("userInput");
     const text = input.value.trim();
@@ -195,8 +257,14 @@ async function sendMessage() {
         addMessage(data.reply, "bot");
 
         memoryState = data.memory;
+
         document.getElementById("memoryBox").innerText =
             JSON.stringify(memoryState, null, 2);
+
+        // 🔥 Render product preview
+        if (data.debug?.results) {
+            renderResults(data.debug.results);
+        }
 
         document.getElementById("debugBox").innerText =
             JSON.stringify(data.debug, null, 2);
