@@ -44,3 +44,10 @@ def build_ask_back_question_it(slot: str, memory) -> str:
         )
 
     return "Puoi darmi qualche dettaglio in più?"
+
+def build_item_ambiguity_question_it(items: list[str]) -> str:
+    joined = " o ".join(items)
+    return (
+        f"Stai cercando {joined}? "
+        "Dimmi quale preferisci così posso aiutarti meglio."
+    )

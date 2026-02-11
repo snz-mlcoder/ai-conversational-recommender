@@ -1,6 +1,6 @@
 # rag/workflow/memory.py
 # TODO [PHASE-2]: introduce probabilistic memory confidence
-
+from copy import deepcopy
 from rag.workflow.schemas import SearchMemory
 
 
@@ -17,21 +17,29 @@ def normalize_value(value: str | None) -> str | None:
 
     return v
 
-def sanitize_memory(memory):
-    memory.category = normalize_value(memory.category)
-    memory.product_type = normalize_value(memory.product_type)
-    memory.use_case = normalize_value(memory.use_case)
-    return memory
+def sanitize_memory(memory: SearchMemory) -> SearchMemory:
+    """
+    Return a sanitized copy of memory.
+    """
+    m = deepcopy(memory)
+
+    m.category = normalize_value(m.category)
+    m.product_type = normalize_value(m.product_type)
+    m.use_case = normalize_value(m.use_case)
+
+    return m
+
 
 
 def update_memory(memory: SearchMemory, updates: dict) -> SearchMemory:
     """
-    Deterministic state reducer for conversational memory.
+    Deterministic, immutable state reducer for conversational memory.
     """
-    memory = sanitize_memory(memory)
+    # always work on a copy
+    new_memory = sanitize_memory(memory)
 
     if not updates:
-        return memory
+        return new_memory
 
     for key, value in updates.items():
 
@@ -39,11 +47,12 @@ def update_memory(memory: SearchMemory, updates: dict) -> SearchMemory:
         if key == "negations" and isinstance(value, dict):
             for attr, neg_value in value.items():
                 if neg_value == NEGATION_ANY:
-                    memory.attributes.pop(attr, None)
-
-                elif neg_value and memory.attributes.get(attr) == neg_value:
-                    memory.attributes.pop(attr, None)
-
+                    new_memory.attributes.pop(attr, None)
+                elif (
+                    neg_value
+                    and new_memory.attributes.get(attr) == neg_value
+                ):
+                    new_memory.attributes.pop(attr, None)
             continue
 
         # 2️⃣ ATTRIBUTES
@@ -55,18 +64,21 @@ def update_memory(memory: SearchMemory, updates: dict) -> SearchMemory:
             }
 
             if cleaned:
-                memory.attributes.update(cleaned)
-
+                # copy-on-write
+                new_attrs = dict(new_memory.attributes)
+                new_attrs.update(cleaned)
+                new_memory.attributes = new_attrs
             continue
 
-       # 3️⃣ ONLY allow known scalar fields
+        # 3️⃣ ONLY allow known scalar fields
         if key not in {"category", "product_type", "use_case", "occasion"}:
-            continue  # 🚫 ignore unknown keys safely
+            continue
+
         norm_value = normalize_value(value) if isinstance(value, str) else value
         if norm_value is not None:
-            setattr(memory, key, norm_value)
+            setattr(new_memory, key, norm_value)
 
-    return memory
+    return new_memory
 
 
 
@@ -83,24 +95,37 @@ def memory_ready(memory: SearchMemory) -> bool:
 def memory_to_text(memory: SearchMemory) -> str:
     """
     Deterministic conversion to search query.
-    No guessing. No noise.
+    Ordered attributes for reproducibility.
     """
     parts: list[str] = []
 
+    # 1️⃣ product type
     if memory.product_type:
         parts.append(memory.product_type)
-        
+
+    # 2️⃣ occasion
     if getattr(memory, "occasion", None):
         parts.append(f"per {memory.occasion}")
 
+    # 3️⃣ use case
     if memory.use_case:
         parts.append(memory.use_case)
 
-    for v in memory.attributes.values():
-        if isinstance(v, str) and v.strip():
-            parts.append(v)
+    # 4️⃣ ordered attributes (FIXED ORDER)
+    if memory.attributes.get("color"):
+        parts.append(memory.attributes["color"])
+
+    if memory.attributes.get("material"):
+        parts.append(memory.attributes["material"])
+
+    if memory.attributes.get("size"):
+        parts.append(memory.attributes["size"])
+
+    if memory.attributes.get("shape"):
+        parts.append(memory.attributes["shape"])
 
     return " ".join(parts)
+
 
 def memory_confidence(memory: SearchMemory) -> float:
     """

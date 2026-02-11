@@ -1,7 +1,7 @@
 import requests
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL = "llama3"
+MODEL = "phi3:mini"
 
 def generate(prompt: str) -> str:
     payload = {

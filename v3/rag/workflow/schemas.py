@@ -11,8 +11,8 @@ class SearchMemory(BaseModel):
     use_case: Optional[str] = None
     occasion: Optional[str] = None
     constraints: Dict = Field(default_factory=dict)
-    attributes: Dict = {}
-    exclusions: Dict = {}
+    attributes: Dict = Field(default_factory=dict)
+    exclusions: Dict = Field(default_factory=dict)
 
 
 

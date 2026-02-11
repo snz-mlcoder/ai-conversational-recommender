@@ -1,11 +1,13 @@
 from pydantic import BaseModel, Field
 from typing import Optional, Dict
 
+
 class MemoryPayload(BaseModel):
-    category: Optional[str] = Field(default=None, example=None)
-    product_type: Optional[str] = Field(default=None, example=None)
-    use_case: Optional[str] = Field(default=None, example=None)
+    category: Optional[str] = None
+    product_type: Optional[str] = None
+    use_case: Optional[str] = None
     attributes: Dict = Field(default_factory=dict)
+
 
 
 
