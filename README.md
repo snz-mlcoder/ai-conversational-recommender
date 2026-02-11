@@ -31,4 +31,13 @@ This repository contains multiple versions of the chatbot.
 
 ## Versions
 - v2: Product-level chunking (legacy stable version)
-- v3: Per-product chunking (experimental)
+
+
+v3 -  Conversational Recommender 
+Stable deterministic backbone:
+- Rule-based intent detection
+- Structured memory tracking
+- Goal layer
+- Ask-back logic
+- RAG integration
+- Minimal demo UI
