@@ -1,4 +1,6 @@
 # rag/workflow/orchestrator.py
+# LEGACY ORCHESTRATOR
+# Will be replaced by WorkflowEngine after full parity.
 
 from uuid import uuid4
 import os

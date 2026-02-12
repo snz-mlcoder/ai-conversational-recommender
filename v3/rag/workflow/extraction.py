@@ -21,19 +21,25 @@ def extract_negations(text: str) -> dict:
     for group_name, vocab in PRODUCT_SIGNAL_GROUPS.items():
 
         # فقط attribute-like groups
-        if group_name not in {"colors", "materials", "sizes", "shapes"}:
+        if group_name not in {"colors", "materials", "sizes", "shapes", "items"}:
             continue
 
         found = [term for term in vocab if term in text]
 
         if not found:
             continue
+    # 🔥 اگر آیتم بود → product_type
+        if group_name == "items":
+            if len(found) >= 2:
+                negations["product_type"] = NEGATION_ANY
+            else:
+                negations["product_type"] = found[0]
+            continue
 
-        # چند مقدار → remove whole attribute
+        # بقیه attribute ها
         if len(found) >= 2:
             negations[group_name[:-1]] = NEGATION_ANY
         else:
-            # یک مقدار → remove specific value
             negations[group_name[:-1]] = found[0]
 
     return negations

@@ -30,12 +30,10 @@ def sanitize_memory(memory: SearchMemory) -> SearchMemory:
     return m
 
 
-
 def update_memory(memory: SearchMemory, updates: dict) -> SearchMemory:
     """
     Deterministic, immutable state reducer for conversational memory.
     """
-    # always work on a copy
     new_memory = sanitize_memory(memory)
 
     if not updates:
@@ -46,13 +44,26 @@ def update_memory(memory: SearchMemory, updates: dict) -> SearchMemory:
         # 1️⃣ NEGATIONS
         if key == "negations" and isinstance(value, dict):
             for attr, neg_value in value.items():
+
+                # 🔥 product_type negation
+                if attr == "product_type":
+                    if neg_value == NEGATION_ANY:
+                        new_memory.product_type = None
+                    elif new_memory.product_type == neg_value:
+                        new_memory.product_type = None
+                    continue
+
+                # 🔥 attribute negation
                 if neg_value == NEGATION_ANY:
-                    new_memory.attributes.pop(attr, None)
-                elif (
-                    neg_value
-                    and new_memory.attributes.get(attr) == neg_value
-                ):
-                    new_memory.attributes.pop(attr, None)
+                    new_attrs = dict(new_memory.attributes)
+                    new_attrs.pop(attr, None)
+                    new_memory.attributes = new_attrs
+
+                elif neg_value and new_memory.attributes.get(attr) == neg_value:
+                    new_attrs = dict(new_memory.attributes)
+                    new_attrs.pop(attr, None)
+                    new_memory.attributes = new_attrs
+
             continue
 
         # 2️⃣ ATTRIBUTES
@@ -64,13 +75,13 @@ def update_memory(memory: SearchMemory, updates: dict) -> SearchMemory:
             }
 
             if cleaned:
-                # copy-on-write
                 new_attrs = dict(new_memory.attributes)
                 new_attrs.update(cleaned)
                 new_memory.attributes = new_attrs
+
             continue
 
-        # 3️⃣ ONLY allow known scalar fields
+        # 3️⃣ scalar fields
         if key not in {"category", "product_type", "use_case", "occasion"}:
             continue
 
@@ -79,6 +90,7 @@ def update_memory(memory: SearchMemory, updates: dict) -> SearchMemory:
             setattr(new_memory, key, norm_value)
 
     return new_memory
+
 
 
 
