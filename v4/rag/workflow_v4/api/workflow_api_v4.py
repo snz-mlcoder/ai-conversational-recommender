@@ -10,11 +10,7 @@ from rag.workflow.normalization import normalize_text
 from rag.workflow.extraction import extract_memory
 from rag.workflow.memory import update_memory
 from rag.workflow.goal import decide_goal
-from rag.workflow.handlers.store_info import handle_store_info
-from rag.workflow.handlers.promotion import handle_promotion
-from rag.workflow.handlers.material_knowledge import handle_material_knowledge
 from rag.workflow.search_step import build_rag_query, call_rag
-from rag.workflow.explanation import generate_explanation
 from rag.workflow_v4.execution.handler_executor import SimpleExecutor
 
 from rag.workflow_v4.search.semantic_retriever import SemanticRetriever

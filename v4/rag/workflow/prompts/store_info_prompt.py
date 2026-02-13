@@ -1,29 +1,12 @@
-# (Phase 2):
-# Make tone more sales-oriented and conversion-focused
-
-
-from rag.workflow.knowledge.store_info_data import STORE_INFO
-
-
-def build_store_info_prompt(question: str) -> str:
+def build_store_info_prompt(question: str, knowledge_data: dict) -> str:
     return f"""
-You are a customer support assistant for an Italian e-commerce store.
+You are a customer support assistant.
 
-Answer the user's question using ONLY the information below.
-Do NOT invent details.
-If the question is unclear, provide the most relevant information.
+Answer using ONLY the structured data below.
 
-Store information:
-- Store name: {STORE_INFO["name"]}
-- Email: {STORE_INFO["email"]}
-- Phone: {STORE_INFO["phone"]}
-- Address: {STORE_INFO["address"]["street"]}, {STORE_INFO["address"]["city"]}, {STORE_INFO["address"]["zip"]}
-
-Rules:
-- Be concise (2–4 sentences).
-- Friendly but professional tone.
-- Language: Italian.
+Knowledge data:
+{json.dumps(knowledge_data, ensure_ascii=False, indent=2)}
 
 User question:
 {question}
-""".strip()
+"""
