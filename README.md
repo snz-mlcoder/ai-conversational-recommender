@@ -29,15 +29,55 @@ This is an **MVP / learning-oriented project**.
 
 This repository contains multiple versions of the chatbot.
 
-## Versions
-- v2: Product-level chunking (legacy stable version)
+Versions
+_____________________________________________________________
+🔹 v2 – Legacy Product-Level Chunking
 
+Early RAG pipeline:
 
-v3 -  Conversational Recommender 
-Stable deterministic backbone:
-- Rule-based intent detection
-- Structured memory tracking
-- Goal layer
-- Ask-back logic
-- RAG integration
-- Minimal demo UI
+Product-level chunking
+
+Embedding-based retrieval
+
+Basic FAISS index
+
+No structured conversational memory
+
+Stable but not conversationally aware.
+___________________________________________________________
+
+🔹 v3 – Conversational Recommender (Deterministic Backbone)
+
+Stable rule-based conversational engine.
+Core features:
+Rule-based intent detection
+Structured memory tracking
+Attribute extraction
+Goal decision layer
+Ask-back logic (slot filling)
+RAG integration
+Minimal demo UI
+
+Focus:
+Deterministic conversational control + predictable behavior.
+No clustering. No semantic reasoning layer.
+____________________________________________________________
+
+🔹 v4 – Modular Workflow Engine + Semantic Reasoning
+
+Major architectural refactor.
+New in v4:
+Fully modular WorkflowEngine
+Pluggable search pipeline
+Embedding-based semantic retrieval
+Business-aware reranking
+Embedding-driven clustering
+Deterministic reasoning layer
+Structured grouped recommendations
+Improved explainability
+
+v4 moves the system from:
+Deterministic conversational RAG
+to:
+Modular semantic retrieval + recommendation engine
+

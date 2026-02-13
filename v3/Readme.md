@@ -1,0 +1,1 @@
+uvicorn rag.api.main:app --reload
