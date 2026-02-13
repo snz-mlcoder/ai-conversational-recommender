@@ -10,39 +10,47 @@ NEGATION_ANY = "__ANY__"
 
 
 def extract_negations(text: str) -> dict:
+    import re
+
     text = text.lower()
     negations: dict = {}
 
-    # اگر اصلاً negation word نداشت، سریع خارج شو
-    if not any(n in text for n in NEGATION_WORDS):
+    # پیدا کردن negation واقعی
+    negation_matches = [
+        n for n in NEGATION_WORDS
+        if re.search(rf"\b{re.escape(n)}\b", text)
+    ]
+
+    if not negation_matches:
         return negations
 
-    # روی همه‌ی گروه‌ها loop بزن
+    # بررسی فقط attribute-like groups
     for group_name, vocab in PRODUCT_SIGNAL_GROUPS.items():
 
-        # فقط attribute-like groups
         if group_name not in {"colors", "materials", "sizes", "shapes", "items"}:
             continue
 
-        found = [term for term in vocab if term in text]
+        found = [
+            term
+            for term in vocab
+            if re.search(rf"\b{re.escape(term)}\b", text)
+        ]
 
         if not found:
             continue
-    # 🔥 اگر آیتم بود → product_type
-        if group_name == "items":
-            if len(found) >= 2:
-                negations["product_type"] = NEGATION_ANY
-            else:
-                negations["product_type"] = found[0]
-            continue
 
-        # بقیه attribute ها
-        if len(found) >= 2:
-            negations[group_name[:-1]] = NEGATION_ANY
+        if group_name == "items":
+            negations["product_type"] = (
+                NEGATION_ANY if len(found) > 1 else found[0]
+            )
         else:
-            negations[group_name[:-1]] = found[0]
+            key = group_name[:-1]
+            negations[key] = (
+                NEGATION_ANY if len(found) > 1 else found[0]
+            )
 
     return negations
+
 
 
 
@@ -108,6 +116,6 @@ def extract_memory(
     # conservative category
     # --------------------
     if not memory.category and "items" in signals:
-        updates["category"] = "tableware"
+        updates["category"] = "inferred_from_catalog"
 
     return updates

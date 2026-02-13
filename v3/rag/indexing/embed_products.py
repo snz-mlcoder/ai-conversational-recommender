@@ -10,9 +10,9 @@ from sentence_transformers import SentenceTransformer
 # Paths (relative to project root)
 # ==========================
 
-INPUT_PATH = Path("rag/data/vector_store/products_semantic.jsonl")
+INPUT_PATH = Path("v4/rag/data/vector_store/products_semantic_v4.jsonl")
 
-INDEX_PATH = Path("rag/data/vector_store/faiss_products.index")
+INDEX_PATH = Path("v4/rag/data/vector_store/faiss_products.index")
 META_PATH = Path("rag/data/vector_store/faiss_products_meta.json")
 
 INDEX_PATH.parent.mkdir(parents=True, exist_ok=True)
