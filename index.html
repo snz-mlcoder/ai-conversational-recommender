@@ -262,8 +262,8 @@ async function sendMessage() {
             JSON.stringify(memoryState, null, 2);
 
         // 🔥 Render product preview
-        if (data.debug?.results) {
-            renderResults(data.debug.results);
+        if (data.debug?.recommendations) {
+            renderResults(data.debug.recommendations);
         }
 
         document.getElementById("debugBox").innerText =

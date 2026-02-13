@@ -1,7 +1,10 @@
-from rag.workflow_v4.engine.workflow_engine import WorkflowEngine
+from rag.workflow_v4.intent.rule_based import RuleBasedIntentClassifier
+from rag.workflow_v4.execution.handler_executor import SimpleExecutor
+from rag.workflow_v4.search.semantic_retriever import SemanticRetriever
+from rag.workflow_v4.search.business_ranker import BusinessAwareRanker
 from rag.workflow_v4.intent.rule_based import RuleBasedIntentClassifier
 from rag.workflow.schemas import SearchMemory
-
+from rag.workflow_v4.engine.workflow_engine import WorkflowEngine
 # temporary adapters (reuse v1 logic)
 from rag.workflow.normalization import normalize_text
 from rag.workflow.extraction import extract_memory
@@ -69,15 +72,23 @@ class SimpleSearchPipeline:
 
 def build_engine():
 
+    normalizer = SimpleNormalizer()
+    intent_classifier = RuleBasedIntentClassifier()
+    extractor = SimpleExtractor()
+    memory_reducer = SimpleMemoryReducer()
+    goal_decider = SimpleGoalDecider()
+    executor = SimpleExecutor()
+
     retriever = SemanticRetriever()
     ranker = BusinessAwareRanker()
+    search_pipeline = SearchPipeline(retriever, ranker)
 
     return WorkflowEngine(
-        normalizer=SimpleNormalizer(),
-        intent_classifier=RuleBasedIntentClassifier(),
-        extractor=SimpleExtractor(),
-        memory_reducer=SimpleMemoryReducer(),
-        goal_decider=SimpleGoalDecider(),
-        executor=SimpleExecutor(),
-        search_pipeline=SearchPipeline(retriever, ranker),
+        normalizer=normalizer,
+        intent_classifier=intent_classifier,
+        extractor=extractor,
+        memory_reducer=memory_reducer,
+        goal_decider=goal_decider,
+        executor=executor,
+        search_pipeline=search_pipeline,
     )
