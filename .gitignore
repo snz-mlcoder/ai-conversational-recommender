@@ -26,6 +26,7 @@ venv/
 .v
 .env
 .venv/
+env
 
 # venv inside versioned folders
 v3/venv/

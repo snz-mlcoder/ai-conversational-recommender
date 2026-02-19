@@ -9,4 +9,6 @@ fastapi
 uvicorn
 pydantic
 numpy
+openai
+dotenv
 

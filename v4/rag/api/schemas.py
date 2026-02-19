@@ -1,22 +1,13 @@
 from pydantic import BaseModel, Field
 from typing import Optional, Dict
-
-
-class MemoryPayload(BaseModel):
-    category: Optional[str] = None
-    product_type: Optional[str] = None
-    use_case: Optional[str] = None
-    attributes: Dict = Field(default_factory=dict)
-
-
-
+from rag.workflow.schemas import SearchMemory
 
 
 class WorkflowRequest(BaseModel):
     user_message: str
-    memory: MemoryPayload
+    memory: SearchMemory
 
 class WorkflowResponse(BaseModel):
     reply: str
-    memory: MemoryPayload
+    memory: SearchMemory
     debug: dict

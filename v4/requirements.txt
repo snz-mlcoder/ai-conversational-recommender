@@ -9,4 +9,7 @@ fastapi
 uvicorn
 pydantic
 numpy
-
+openai
+dotenv
+qdrant-client
+python-dotenv

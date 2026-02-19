@@ -1,62 +1,80 @@
 # [PHASE-2]: optional LLM-assisted intent disambiguation
 
+# rag/workflow/intent.py
 
 from enum import Enum
-from rag.workflow.signals import has_search_signal
+from typing import Tuple, Optional
 
-from rag.workflow.intent_vocab import (
-    STORE_INFO_TERMS,
-    PROMOTION_TERMS,
-    MATERIAL_KNOWLEDGE_TERMS,
-)
 from rag.workflow.signals import (
     extract_product_signals,
+    has_search_signal,
     is_question,
 )
+from rag.workflow.intent_vocab import (
+    STORE_INFO_TERMS,
+)
+from rag.workflow.intent_types import Intent
 
 
-class Intent(Enum):
-    SMALL_TALK = "small_talk"
-    PRODUCT_SEARCH = "product_search"
-    STORE_INFO = "store_info"
-    PROMOTION = "promotion"
-    MATERIAL_KNOWLEDGE = "material_knowledge"
-
+# =====================================================
+# Utilities
+# =====================================================
 
 def contains_any(text: str, terms: set[str]) -> bool:
-    """
-    Check if any keyword in `terms` is contained in the text.
-    """
     return bool(terms) and any(term in text for term in terms)
 
 
-from rag.workflow.signals import has_search_signal
+# =====================================================
+# Rule-based Intent Stage
+# =====================================================
+
+def rule_intent_stage(text: str, signals: dict) -> Tuple[Intent, float]:
+
+    # 1️⃣ Store info (high priority, explicit)
+    if contains_any(text, STORE_INFO_TERMS):
+        return Intent.STORE_INFO, 0.95
+
+    # 2️⃣ Material knowledge (question about materials)
+    if (
+        "materials" in signals
+        and is_question(text)
+    ):
+        return Intent.MATERIAL_KNOWLEDGE, 0.9
+
+    # 3️⃣ Explicit item → product search
+    if "items" in signals:
+        return Intent.PRODUCT_SEARCH, 0.9
+
+    # 4️⃣ Attribute-only refinement (no question)
+    if has_search_signal(text) and not is_question(text):
+        return Intent.PRODUCT_SEARCH, 0.85
+
+    return Intent.SMALL_TALK, 0.4
+
+# =====================================================
+# Hybrid Detect Intent (Rule + Optional LLM)
+# =====================================================
+
+LLM_CONFIDENCE_THRESHOLD = 0.6
+
 
 def detect_intent(user_message: str) -> Intent:
+
+    from rag.workflow.llm_intent import llm_intent_disambiguation
+
     text = user_message.lower()
     signals = extract_product_signals(text)
 
-    # 1️⃣ Store / service info
-    if contains_any(text, STORE_INFO_TERMS):
-        return Intent.STORE_INFO
+    rule_intent, confidence = rule_intent_stage(text, signals)
 
-    # 2️⃣ Promotion / commercial terms
-    if contains_any(text, PROMOTION_TERMS):
-        return Intent.PROMOTION
+    # 🔥 LLM disambiguation layer
+    if confidence < 0.85:
+        llm_intent = llm_intent_disambiguation(text)
+        if llm_intent:
+            return llm_intent
 
-    # 3️⃣ Explicit product search
-    if "items" in signals:
-        return Intent.PRODUCT_SEARCH
+    return rule_intent
 
-    # 4️⃣ Vague product search (NEW)
-    if has_search_signal(text):
-        return Intent.PRODUCT_SEARCH
-
-    # 5️⃣ Material knowledge (informational)
-    if "materials" in signals and is_question(text):
-        return Intent.MATERIAL_KNOWLEDGE
-
-    return Intent.SMALL_TALK
 
 
 

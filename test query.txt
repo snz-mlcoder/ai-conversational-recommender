@@ -1,0 +1,340 @@
+ما سیستم رو در 6 لایه تست می‌کنیم
+
+GROUP A — Small Talk
+
+Ciao
+
+Buongiorno
+
+Come stai?
+
+Grazie
+
+Ok
+
+Perfetto
+
+Va bene
+
+👍intent = small_talk
+rag_called = false
+____________________________________________
+
+GROUP B — Pure Product Search
+
+انتظار:
+
+intent = product_search
+rag_called = true
+
+تست‌ها:
+
+Mug
+
+Bicchieri
+
+Piatti
+
+Bicchieri in vetro
+
+Piatti bianchi
+
+Mug neri
+
+Set di piatti rettangolari
+
+Tazze per ristorante
+
+باید مستقیم بره RAG.
+____________________________________________
+GROUP C — Attribute Continuation (Memory-sensitive)
+
+سناریو:
+
+User: Bicchieri
+User: In vetro
+
+
+انتظار پیام دوم:
+
+intent = product_search
+rag_called = true
+
+
+تست‌ها:
+
+Bicchieri
+
+Neri
+
+Piatti
+
+Rettangolari
+
+Mug
+
+In ceramica
+
+اگر پیام دوم رفت material_knowledge → هنوز override مشکل داره.
+____________________________________________________________
+
+)
+
+انتظار:
+
+intent = material_knowledge
+rag_called = false
+
+
+تست‌ها:
+
+Meglio vetro o plastica?
+
+Differenza tra ceramica e porcellana
+
+Il vetro è meglio della plastica?
+
+Qual è più resistente, plastica o vetro?
+
+اگر رفت RAG → attribute detection باگ دارد.
+________________________________________________________
+
+GROUP E — Store Info
+
+انتظار:
+
+intent = store_info
+rag_called = false
+
+
+تست‌ها:
+
+Quanto costa la spedizione?
+
+In quanti giorni arriva?
+
+Fate spedizione gratuita?
+
+Che corriere usate?
+
+Posso pagare alla consegna?
+
+اگر RAG فعال شد → store intent نشتی دارد.
+__________________________________________________
+
+GROUP F — Suggest Mode
+
+انتظار:
+
+intent = suggest
+rag_called = false
+
+
+تست‌ها:
+
+Mi dai qualche idea per una festa?
+
+Cosa mi consigli?
+
+Non so cosa scegliere
+
+Suggerimenti per compleanno
+
+اگر مستقیم رفت RAG → goal layer ایراد دارد.
+___________________________________________
+
+:GROUP G — Mixed Edge Cases
+
+اینا سخت‌ترین‌ها هستند 👇
+
+1️⃣ Mixed greeting + search
+Ciao, cerco bicchieri in vetro
+
+
+باید:
+
+intent = product_search
+rag_called = true
+
+
+نه small_talk.
+______________________________________________
+
+Soft search phrasing
+Avete mug?
+
+
+باید product_search باشد.
+
+3️⃣ Comparative but single item
+Meglio mug in vetro?
+
+
+اینجا tricky است.
+
+باید material_knowledge باشد
+نه product_search.
+
+4️⃣ Ambiguous
+Nero
+
+
+اگر memory خالی باشد → ask_back
+اگر memory داشته باشد → product_search
+
+⚫ GROUP H — Constraint Failure
+
+تست‌هایی که نباید کرش کنند:
+
+Bicchieri in oro
+
+Piatti in diamante
+
+Mug viola fluo
+
+باید gracefully no_match بدهد.
+
+🧠 چیزهایی که حتماً چک کن
+
+برای هر تست ببین:
+
+initial_intent
+
+final_intent
+
+rag_called
+
+validation
+
+memory_after_update
+________________________________________________
+
+
+
+
+Intent routing
+
+Memory accumulation
+
+Negation behavior
+
+Negotiation
+
+Multi-entity handling
+
+Knowledge vs Search separation
+_________________________________
+
+Basic Search Flow
+voglio piatto
+باید:
+
+product_type باقی بماند
+
+color اضافه شود
+
+RAG اجرا شود
+________________________________
+Progressive Refinement
+hai anche nero
+
+باید:
+
+product_type باقی بماند
+
+color اضافه شود
+
+RAG اجرا شود
+__________________________________
+
+Progressive Refinement
+non nero
+
+باید:
+
+product_type = None
+
+intent تغییر کند
+
+ask-back برای product_type بیاید
+
+RAG اجرا نشود ❌
+_______________________________________
+Product Negation 
+
+باید:
+
+product_type = None
+
+intent تغییر کند
+
+ask-back برای product_type بیاید
+
+RAG اجرا نشود ❌
+_________________________________________
+
+
+0️⃣ Vague Goal
+qualcosa per festa 
+
+ask-back برای product_type
+
+RAG اجرا نشود
+
+___________________________________
+
+
+
+Replace Product
+bicchiere
+non bicchiere
+باید:
+
+product_type = bicchiere
+
+category حفظ شود یا منطقی reset شود
+
+RAG اجرا شود
+_______________________________________
+Knowledge Separation
+e meglio plastica o vetro?
+
+باید:
+
+intent = MATERIAL_KNOWLEDGE
+
+RAG اجرا نشود ❌
+
+LLM handler اجرا شود
+______________________________________
+Item Ambiguity
+piatto o ciotola
+باید:
+
+ask-back بیاید
+
+RAG اجرا نشود
+
+_______________________________________
+Multi Search
+piatto e cucchiaio
+
+باید:
+
+PRODUCT_SEARCH
+
+یا OR behavior
+
+ولی نباید knowledge شود
+
+_______________________________________________
+
+Scope Guard
+la plastica è cancerogena?
+
+knowledge
+
+نه search
+
+_________________________________________________
+

@@ -8,7 +8,7 @@ from pathlib import Path
 # =======================
 
 # Input catalog file (CSV or Excel)
-INPUT_FILE = Path("rag/data/raw/company_catalog_sample.csv")
+INPUT_FILE = Path("rag/data/raw/company_catalog.csv")
 
 # Output unified catalog JSON
 OUTPUT_JSON = Path("rag/data/processed/company_catalog.json")

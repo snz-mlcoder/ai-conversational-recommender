@@ -188,7 +188,8 @@ function addMessage(text, sender) {
 
     const bubble = document.createElement("div");
     bubble.classList.add("bubble");
-    bubble.innerText = text;
+    bubble.innerHTML = text.reolace(/\n/g, "<br>");
+
 
     msgDiv.appendChild(bubble);
     messagesDiv.appendChild(msgDiv);

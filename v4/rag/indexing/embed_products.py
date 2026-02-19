@@ -32,13 +32,14 @@ BATCH_SIZE = 64
 def run():
     if not INPUT_PATH.exists():
         print("❌ Semantic products file not found.")
+        print(f"Expected at: {INPUT_PATH}")
         return
 
     print("🧠 Loading embedding model...")
     model = SentenceTransformer(MODEL_NAME)
 
     texts = []
-    raw_records = []
+    metadata = []
 
     print("📦 Reading semantic products...")
     with INPUT_PATH.open("r", encoding="utf-8") as f:
@@ -50,7 +51,13 @@ def run():
                 continue
 
             texts.append(text)
-            raw_records.append(record)
+            metadata.append({
+                "product_id": record.get("product_id"),
+                "category": record.get("category"),
+                "source": record.get("source"),
+                "url": record.get("url"),
+                "images": record.get("images", []),
+            })
 
     total = len(texts)
     print(f"🧾 Products to embed: {total}")
@@ -60,7 +67,7 @@ def run():
         return
 
     # ==========================
-    # Generate embeddings (ONLY ONCE)
+    # Generate embeddings
     # ==========================
 
     print("⚙️ Generating embeddings...")
@@ -76,27 +83,11 @@ def run():
     print(f"📐 Embedding dimension: {dim}")
 
     # ==========================
-    # Build metadata (with SAME embeddings)
-    # ==========================
-
-    metadata = []
-
-    for record, vector in zip(raw_records, embeddings):
-        metadata.append({
-            "product_id": record.get("product_id"),
-            "category": record.get("category"),
-            "source": record.get("source"),
-            "url": record.get("url"),
-            "images": record.get("images", []),
-            "embedding": vector.tolist(),   # ✅ identical to FAISS vector
-        })
-
-    # ==========================
     # Build FAISS index
     # ==========================
 
     print("📥 Building FAISS index...")
-    index = faiss.IndexFlatIP(dim)
+    index = faiss.IndexFlatIP(dim)  # cosine similarity
     index.add(embeddings)
 
     # ==========================
@@ -112,7 +103,8 @@ def run():
 
     print("🎉 DONE")
     print(f"🔢 Vectors stored: {index.ntotal}")
-
+    print(f"📁 Index: {INDEX_PATH}")
+    print(f"📁 Metadata: {META_PATH}")
 
 
 if __name__ == "__main__":

@@ -42,6 +42,10 @@ class ProductSearchEngine:
         self._load_metadata()
         self._load_model()
 
+        # 🔥 DEBUG CHECK
+        print("[DEBUG] FAISS index size:", self.index.ntotal)
+        print("[DEBUG] Metadata size:", len(self.metadata))
+
     def _load_index(self):
         if not INDEX_PATH.exists():
             raise FileNotFoundError(f"FAISS index not found at {INDEX_PATH}")
@@ -61,29 +65,58 @@ class ProductSearchEngine:
     def search(
         self,
         query: str,
-        top_k: int = DEFAULT_TOP_K,
+        memory=None,
+        top_k: int = 3,
+        offset: int = 0,
     ) -> List[Dict]:
-        """
-        Search products semantically by query text.
-        Returns raw candidates (no clustering, no ranking logic).
-        """
 
         if not query or not query.strip():
             return []
 
-        # Embed query
+        print("\n================ SEARCH START ================")
+        print("[SEARCH] Raw query:", query)
+
+        # -------------------------
+        # Query enrichment (SAFE)
+        # -------------------------
+        if memory:
+            tokens = [query]
+
+            if memory.product_type:
+                tokens.append(memory.product_type)
+
+            for val in memory.attributes.values():
+                tokens.append(val)
+
+            if memory.use_case:
+                tokens.append(memory.use_case)
+
+            if memory.occasion:
+                tokens.append(memory.occasion)
+
+            query = " ".join(dict.fromkeys(tokens))  # remove duplicates
+
+        print("[SEARCH] Enriched query:", query)
+
+        # -------------------------
+        # Embedding
+        # -------------------------
         query_vec = self.model.encode(
             query,
             convert_to_numpy=True,
             normalize_embeddings=True,
         ).reshape(1, -1)
 
-        # FAISS search
-        scores, indices = self.index.search(query_vec, top_k)
+        # -------------------------
+        # Search
+        # -------------------------
+        fetch_k = max(top_k * 3, 20)
+        scores, indices = self.index.search(query_vec, fetch_k)
 
         results = []
 
         for score, idx in zip(scores[0], indices[0]):
+
             if idx < 0:
                 continue
 
@@ -94,11 +127,18 @@ class ProductSearchEngine:
                 "score": float(score),
                 "category": meta.get("category"),
                 "source": meta.get("source"),
-                "url": meta.get("url"),      
+                "url": meta.get("url"),
                 "images": meta.get("images", []),
             })
 
-        return results
+            if len(results) >= top_k:
+                break
+
+        print("[SEARCH] Final product_ids:",
+            [r["product_id"] for r in results])
+        print("================ SEARCH END =================\n")
+
+        return results[offset: offset + top_k]
 
 
 # ==========================

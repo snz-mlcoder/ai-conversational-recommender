@@ -16,6 +16,19 @@ STORE_INFO_TERMS = {
     "pagamenti",
     "corriere",
     "consegna",
+    "spedizione",
+    "consegna",
+    "tempi di consegna",
+    "reso",
+    "rimborso",
+    "pagamento",
+    "paypal",
+    "contrassegno",
+    "carta",
+    "bonifico",
+    "indirizzo",
+    "orari",
+    
 }
 
 

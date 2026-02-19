@@ -1,117 +1,71 @@
 import json
-import re
 from pathlib import Path
 
-# ==========================
-# Paths
-# ==========================
 
-INPUT_PATH = Path("rag/data/processed/company_catalog.json")
+INPUT_PATH = Path("rag/data/vector_store/structured_products_v4.json")
 OUTPUT_PATH = Path("rag/data/vector_store/products_semantic_v4.jsonl")
+
 OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 
-# ==========================
-# Regex Patterns (Generic)
-# ==========================
-
-QUANTITY_PATTERN = re.compile(r"\b(\d+)\s?(pezzi|pz|pcs|pieces)\b", re.IGNORECASE)
-MEASURE_PATTERN = re.compile(
-    r"\b\d+(?:[.,]\d+)?\s?(cc|ml|cl|cm|mm|l|lt|kg|g)\b",
-    re.IGNORECASE
-)
+def format_capacity(cap):
+    if not cap:
+        return None
+    return f"{cap['value']} {cap['unit']}"
 
 
-# ==========================
-# Signal Extraction
-# ==========================
+def format_size(size):
+    if not size:
+        return None
 
-def extract_structured_signals_from_name(name: str) -> dict:
-    """
-    Extract lightweight structured signals from product name.
-    Generic and domain-agnostic.
-    """
-    signals = {}
+    if isinstance(size.get("values"), list):
+        return " x ".join(str(v) for v in size["values"]) + f" {size['unit']}"
 
-    # Quantity
-    quantity_match = QUANTITY_PATTERN.search(name)
-    if quantity_match:
-        signals["quantity"] = quantity_match.group(0)
+    if isinstance(size.get("value"), (int, float)):
+        return f"{size['value']} {size['unit']}"
 
-    # Measurement (capacity, size, weight...)
-    measure_match = MEASURE_PATTERN.search(name)
-    if measure_match:
-        signals["measure"] = measure_match.group(0)
+    return None
 
-    # Type guess:
-    # Take tokens before "in" if exists (common structure in EU catalogs)
-    tokens = name.split()
-    tokens_lower = [t.lower() for t in tokens]
-
-    if "in" in tokens_lower:
-        idx = tokens_lower.index("in")
-        type_guess = " ".join(tokens[:idx])
-    else:
-        type_guess = " ".join(tokens[:3])
-
-    signals["type_guess"] = type_guess.strip()
-
-    return signals
-
-
-# ==========================
-# Semantic Builder
-# ==========================
 
 def build_semantic_text(product: dict) -> str:
-    """
-    Build weighted semantic representation.
-    High-signal fields first.
-    Avoid duplication.
-    """
-
-    name = product.get("name")
-    if not name:
-        return ""
 
     lines = []
-    seen_values = set()
 
-    # 1️⃣ Extract structured signals from name
-    signals = extract_structured_signals_from_name(name)
+    title = product.get("title")
+    if title:
+        lines.append(f"Product: {title}")
 
-    # 2️⃣ High priority signals first (important for similarity)
-    for key in ["type_guess", "quantity", "measure"]:
-        value = signals.get(key)
-        if value:
-            value = value.strip()
-            if value and value not in seen_values:
-                lines.append(f"{key.upper()}: {value}")
-                seen_values.add(value)
+    # Reinforce product type
+    if product.get("product_type"):
+        lines.append(f"Type: {product['product_type']}")
+        lines.append(f"Category: {product['product_type']}")
 
-    # 3️⃣ Category path
-    category_path = product.get("category_path")
-    if category_path:
-        category_text = " > ".join(map(str, category_path)).strip()
-        if category_text and category_text not in seen_values:
-            lines.append(f"CATEGORY: {category_text}")
-            seen_values.add(category_text)
+    attrs = product.get("attributes", {})
 
-    # 4️⃣ Full product name (always include)
-    if name not in seen_values:
-        lines.append(f"NAME: {name}")
-        seen_values.add(name)
+    if attrs.get("material"):
+        lines.append(f"Material: {attrs['material']}")
+
+    if attrs.get("color"):
+        lines.append(f"Color: {attrs['color']}")
+
+    cap = format_capacity(attrs.get("capacity"))
+    if cap:
+        lines.append(f"Capacity: {cap}")
+
+    size = format_size(attrs.get("size"))
+    if size:
+        lines.append(f"Size: {size}")
+
+    if attrs.get("set_size"):
+        lines.append(f"Set size: {attrs['set_size']} pieces")
 
     return "\n".join(lines)
 
 
-# ==========================
-# Runner
-# ==========================
-
 def run():
+
     if not INPUT_PATH.exists():
-        print("❌ Input file not found.")
+        print("❌ structured_products_v4.json not found")
         return
 
     products = json.loads(INPUT_PATH.read_text(encoding="utf-8"))
@@ -119,27 +73,29 @@ def run():
     written = 0
 
     with OUTPUT_PATH.open("w", encoding="utf-8") as out:
+
         for product in products:
 
-            text = build_semantic_text(product)
-            if not text.strip():
+            semantic_text = build_semantic_text(product)
+
+            if not semantic_text.strip():
                 continue
 
             record = {
                 "product_id": product.get("id"),
-                "text": text,
-                "category": " > ".join(product.get("category_path") or []),
+                "text": semantic_text,
                 "source": product.get("source"),
                 "url": product.get("url"),
-                "images": product.get("images", []),
+                "category": product.get("category"),
+                "use_cases": product.get("use_cases"),
             }
 
             out.write(json.dumps(record, ensure_ascii=False) + "\n")
             written += 1
 
     print("🎉 DONE")
-    print(f"🧠 Semantic products written: {written}")
-    print(f"💾 Output: {OUTPUT_PATH}")
+    print(f"🧠 Semantic records: {written}")
+    print(f"📁 Output: {OUTPUT_PATH}")
 
 
 if __name__ == "__main__":

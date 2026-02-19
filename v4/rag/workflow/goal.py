@@ -25,18 +25,29 @@ def is_goal_like(text: str) -> bool:
 
 
 def decide_goal(intent, memory: SearchMemory, normalized_message: str) -> GoalDecision:
+
+    # Non search intents → just answer
     if intent.value != "product_search":
         return GoalDecision.ANSWER
 
     goal_like = is_goal_like(normalized_message)
 
-    # 1️⃣ Idea seeking → SUGGEST
+    # -------------------------------------------------
+    # 🔒 1️⃣ No product_type → never direct search
+    # -------------------------------------------------
     if not memory.product_type:
-        if (memory.occasion or memory.use_case) and goal_like:
+
+        # If we have occasion/use_case → suggestion mode
+        if memory.occasion or memory.use_case:
             return GoalDecision.SUGGEST
 
-    # 2️⃣ Product mentioned but no criteria → ASK_BACK
-    if memory.product_type and goal_like:
+        # Otherwise → ask clarification
+        return GoalDecision.ASK_BACK
+
+    # -------------------------------------------------
+    # 2️⃣ Product mentioned but no refinement → ask_back
+    # -------------------------------------------------
+    if goal_like:
         has_any_focus = any([
             memory.use_case,
             memory.occasion,
@@ -45,4 +56,8 @@ def decide_goal(intent, memory: SearchMemory, normalized_message: str) -> GoalDe
         if not has_any_focus:
             return GoalDecision.ASK_BACK
 
+    # -------------------------------------------------
+    # 3️⃣ Normal search
+    # -------------------------------------------------
     return GoalDecision.ANSWER
+

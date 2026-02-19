@@ -92,15 +92,15 @@ PRODUCT_SIGNAL_GROUPS: Dict[str, set[str]] = {
     # -------- Colors --------
     "colors": {
         "rosso", "red",
-        "blu", "blue",
+        "blu", "blue", "azzurro", "azure",
         "verde", "green",
         "giallo", "yellow",
         "nero", "black",
-        "bianco", "white",
+        "bianco", "white",""
         "grigio", "gray",
         "rosa", "pink",
-        "arancio", "orange",
-        "marrone", "brown",
+        "arancio", "orange","arancione",
+        "marrone", "brown","bruno",
         "oro", "gold",
         "argento", "silver",
         "trasparente", "transparent",

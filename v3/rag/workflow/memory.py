@@ -33,7 +33,9 @@ def sanitize_memory(memory: SearchMemory) -> SearchMemory:
 def update_memory(memory: SearchMemory, updates: dict) -> SearchMemory:
     """
     Deterministic, immutable state reducer for conversational memory.
+    Production-safe version.
     """
+
     new_memory = sanitize_memory(memory)
 
     if not updates:
@@ -41,8 +43,11 @@ def update_memory(memory: SearchMemory, updates: dict) -> SearchMemory:
 
     for key, value in updates.items():
 
+        # =====================================================
         # 1️⃣ NEGATIONS
+        # =====================================================
         if key == "negations" and isinstance(value, dict):
+
             for attr, neg_value in value.items():
 
                 # 🔥 product_type negation
@@ -66,8 +71,35 @@ def update_memory(memory: SearchMemory, updates: dict) -> SearchMemory:
 
             continue
 
-        # 2️⃣ ATTRIBUTES
+        # =====================================================
+        # 2️⃣ CONSTRAINTS  🔥 NEW
+        # =====================================================
+        if key == "constraints" and isinstance(value, dict):
+
+            if value:
+                new_constraints = dict(new_memory.constraints)
+                new_constraints.update(value)
+                new_memory.constraints = new_constraints
+
+            continue
+
+        # =====================================================
+        # 3️⃣ EXCLUSIONS (future-safe)
+        # =====================================================
+        if key == "exclusions" and isinstance(value, dict):
+
+            if value:
+                new_exclusions = dict(new_memory.exclusions)
+                new_exclusions.update(value)
+                new_memory.exclusions = new_exclusions
+
+            continue
+
+        # =====================================================
+        # 4️⃣ ATTRIBUTES
+        # =====================================================
         if key == "attributes" and isinstance(value, dict):
+
             cleaned = {
                 attr: normalize_value(val)
                 for attr, val in value.items()
@@ -81,13 +113,43 @@ def update_memory(memory: SearchMemory, updates: dict) -> SearchMemory:
 
             continue
 
-        # 3️⃣ scalar fields
-        if key not in {"category", "product_type", "use_case", "occasion"}:
+        # =====================================================
+        # 5️⃣ SCALAR FIELDS
+        # =====================================================
+        if key in {"category", "product_type", "use_case", "occasion"}:
+
+            norm_value = normalize_value(value) if isinstance(value, str) else value
+
+            if norm_value is not None:
+            
+        # 🔥 اگر product_type عوض شد → context قبلی پاک شود
+                if key == "product_type":
+                    if new_memory.product_type and memory.product_type != norm_value:
+                        new_memory.use_case = None
+                        new_memory.occasion = None
+                        new_memory.attributes = {}
+                        new_memory.constraints = {}
+
+                setattr(new_memory, key, norm_value)
+
             continue
 
-        norm_value = normalize_value(value) if isinstance(value, str) else value
-        if norm_value is not None:
-            setattr(new_memory, key, norm_value)
+        # -----------------------------------------------------
+        # Unknown keys → ignore safely
+        # -----------------------------------------------------
+        
+        
+        
+        # =====================================================
+        # 6️⃣ SEMANTIC SOFT SIGNALS (LLM)
+        # =====================================================
+        if key in {"style", "target", "mood"} and isinstance(value, str):
+            norm_value = normalize_value(value)
+            if norm_value:
+                new_constraints = dict(new_memory.constraints)
+                new_constraints[key] = norm_value
+                new_memory.constraints = new_constraints
+            continue
 
     return new_memory
 
