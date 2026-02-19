@@ -30,13 +30,15 @@ def chat(req: WorkflowRequest):
         "debug": debug
     }
 
-
 import os
+import uvicorn
 
 if __name__ == "__main__":
-    import uvicorn
+    port = int(os.environ.get("PORT", 10000))
+    print("Starting server on port:", port)
+
     uvicorn.run(
-        "rag.api.main:app",
+        app,                # ← مستقیم خود app
         host="0.0.0.0",
-        port=int(os.environ.get("PORT", 10000))
+        port=port
     )
