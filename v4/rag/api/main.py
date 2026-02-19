@@ -13,6 +13,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+def health():
+    return {"status": "ok"}
+
 @app.post("/chat", response_model=WorkflowResponse)
 def chat(req: WorkflowRequest):
     reply, updated_memory, debug = run_workflow(
