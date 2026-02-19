@@ -13,10 +13,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/")
-def health():
-    return {"status": "ok"}
-
 @app.post("/chat", response_model=WorkflowResponse)
 def chat(req: WorkflowRequest):
     reply, updated_memory, debug = run_workflow(
@@ -29,16 +25,3 @@ def chat(req: WorkflowRequest):
         "memory": updated_memory,
         "debug": debug
     }
-
-import os
-import uvicorn
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    print("Starting server on port:", port)
-
-    uvicorn.run(
-        app,                # ← مستقیم خود app
-        host="0.0.0.0",
-        port=port
-    )
